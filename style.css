@@ -1585,3 +1585,153 @@ small{
     background:#4CAF50;
     transition:.4s;
 }
+
+/* =====================================================
+   SALES MODULE - NAVIGATION
+===================================================== */
+
+.salesNavigation{
+    display:flex;
+    gap:20px;
+    align-items:flex-end;
+    flex-wrap:wrap;
+   margin-top:18px;
+    padding-top:10px;
+}
+
+
+/* BOX TAHUN / BULAN / STORE */
+
+.salesSelectBox{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+
+    min-width:180px;
+}
+
+
+/* LABEL */
+
+.salesSelectBox label{
+    font-size:14px;
+    font-weight:600;
+    color:#333;
+
+    margin-top:4px;
+    margin-bottom:2px;
+}
+
+
+/* SELECT */
+
+.salesSelectBox select{
+    width:100%;
+    box-sizing:border-box;
+
+    padding:10px 12px;
+
+    border:1px solid #ccc;
+    border-radius:8px;
+
+    background:#fff;
+
+    font-size:14px;
+    color:#222;
+
+    outline:none;
+
+    transition:
+        border-color .2s,
+        box-shadow .2s;
+}
+
+
+/* SAAT SELECT AKTIF */
+
+.salesSelectBox select:focus{
+    border-color:#f5c400;
+
+    box-shadow:
+        0 0 0 3px rgba(255,212,0,.20);
+}
+
+
+/* =====================================================
+   SALES SUMMARY
+===================================================== */
+
+#salesSummary .summary{
+    display:grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0,1fr));
+
+    gap:15px;
+}
+
+
+/* =====================================================
+   TOTAL SALES
+===================================================== */
+
+#salesTotal{
+    font-size:clamp(20px, 2vw, 30px);
+
+    line-height:1.15;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    margin:0;
+}
+
+
+/* =====================================================
+   SUMMARY ANGKA LAIN
+===================================================== */
+
+#salesAchievement,
+#salesTransaction,
+#salesUPT,
+#salesATV{
+    font-size:clamp(22px, 2.2vw, 32px);
+
+    line-height:1.15;
+
+    margin:0;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+
+/* =====================================================
+   SUMMARY CARD
+===================================================== */
+
+#salesSummary .card{
+    min-width:0;
+
+    overflow:hidden;
+
+    box-sizing:border-box;
+}
+
+
+/* =====================================================
+   LABEL SUMMARY
+===================================================== */
+
+#salesSummary .card p{
+    margin-top:8px;
+    margin-bottom:0;
+
+    font-size:14px;
+}
