@@ -3579,7 +3579,7 @@ function loadSalesData(){
 
 
         // =============================================
-        // SIMPAN DATA
+        // SIMPAN DATA SALES TAHUN INI
         // =============================================
 
         salesGlobal =
@@ -3587,11 +3587,22 @@ function loadSalesData(){
 
 
         // =============================================
+        // SIMPAN SALES TAHUN LALU
+        // =============================================
+
+        window.salesPreviousYear =
+            Number(
+                result.previousYearSales
+            ) || 0;
+
+
+        // =============================================
         // TAMPILKAN SUMMARY
         // =============================================
 
         tampilkanSalesSummary(
-            salesGlobal
+            salesGlobal,
+            window.salesPreviousYear
         );
 
 
@@ -3660,7 +3671,6 @@ function loadSalesData(){
 
 }
 
-
 // =====================================================
 // FORMAT RUPIAH
 // =====================================================
@@ -3701,31 +3711,36 @@ function formatNumber(value){
 
 
 // =====================================================
-// SUMMARY
+// SALES SUMMARY
 // =====================================================
 
-function tampilkanSalesSummary(data){
+function tampilkanSalesSummary(
+    data,
+    previousYearSales = 0
+){
 
     let totalSales = 0;
-    let totalTransaction = 0;
-    let totalQtySold = 0;
+
     let totalTarget = 0;
 
+    let totalTransaction = 0;
 
-    // =====================================================
-    // HITUNG TOTAL
-    // =====================================================
+    let totalQtySold = 0;
+
 
     data.forEach(row => {
 
         totalSales +=
             Number(row.sales) || 0;
 
+
         totalTarget +=
             Number(row.target) || 0;
 
+
         totalTransaction +=
             Number(row.transaction) || 0;
+
 
         totalQtySold +=
             Number(row.qtySold) || 0;
@@ -3733,10 +3748,9 @@ function tampilkanSalesSummary(data){
     });
 
 
-    // =====================================================
+    // =================================================
     // UPT
-    // TOTAL QTY SOLD / TOTAL TRANSACTION
-    // =====================================================
+    // =================================================
 
     const totalUPT =
         totalTransaction > 0
@@ -3744,10 +3758,9 @@ function tampilkanSalesSummary(data){
         : 0;
 
 
-    // =====================================================
+    // =================================================
     // ATV
-    // TOTAL SALES / TOTAL TRANSACTION
-    // =====================================================
+    // =================================================
 
     const ATV =
         totalTransaction > 0
@@ -3755,10 +3768,9 @@ function tampilkanSalesSummary(data){
         : 0;
 
 
-    // =====================================================
+    // =================================================
     // ACHIEVEMENT LEVEL 1
-    // SALES / TARGET
-    // =====================================================
+    // =================================================
 
     const achievement =
         totalTarget > 0
@@ -3766,9 +3778,48 @@ function tampilkanSalesSummary(data){
         : 0;
 
 
-    // =====================================================
-    // SALES MTD
-    // =====================================================
+    // =================================================
+    // SSSG
+    //
+    // SALES TAHUN INI VS SALES TAHUN LALU
+    // =================================================
+
+    let sssg = 0;
+
+    let sssgText = "N/A";
+
+
+    if(previousYearSales > 0){
+
+        sssg =
+            (
+                (
+                    totalSales -
+                    previousYearSales
+                )
+                /
+                previousYearSales
+            )
+            * 100;
+
+
+        sssgText =
+            (
+                sssg >= 0
+                ? "+"
+                : ""
+            )
+            +
+            sssg.toFixed(2)
+            +
+            "%";
+
+    }
+
+
+    // =================================================
+    // DISPLAY TOTAL SALES
+    // =================================================
 
     document
         .getElementById("salesTotal")
@@ -3776,9 +3827,63 @@ function tampilkanSalesSummary(data){
         formatRupiah(totalSales);
 
 
-    // =====================================================
-    // TRANSACTION
-    // =====================================================
+    // =================================================
+    // DISPLAY ACHIEVEMENT
+    // =================================================
+
+    document
+        .getElementById("salesAchievement")
+        .innerHTML =
+        achievement.toFixed(2) + "%";
+
+
+    // =================================================
+    // DISPLAY SSSG
+    // =================================================
+
+    const sssgElement =
+        document.getElementById(
+            "salesSSSG"
+        );
+
+
+    if(sssgElement){
+
+        sssgElement.innerHTML =
+            sssgText;
+
+
+        // =============================================
+        // WARNA SSSG
+        // =============================================
+
+        if(sssg > 0){
+
+            sssgElement.style.color =
+                "#16803c";
+
+        }
+
+        else if(sssg < 0){
+
+            sssgElement.style.color =
+                "#d32f2f";
+
+        }
+
+        else{
+
+            sssgElement.style.color =
+                "#333";
+
+        }
+
+    }
+
+
+    // =================================================
+    // TRANSAKSI
+    // =================================================
 
     document
         .getElementById("salesTransaction")
@@ -3786,9 +3891,9 @@ function tampilkanSalesSummary(data){
         formatNumber(totalTransaction);
 
 
-    // =====================================================
+    // =================================================
     // UPT
-    // =====================================================
+    // =================================================
 
     document
         .getElementById("salesUPT")
@@ -3796,31 +3901,14 @@ function tampilkanSalesSummary(data){
         formatNumber(totalUPT);
 
 
-    // =====================================================
+    // =================================================
     // ATV
-    // =====================================================
+    // =================================================
 
     document
         .getElementById("salesATV")
         .innerHTML =
         formatRupiah(ATV);
-
-
-    // =====================================================
-    // ACHIEVEMENT LEVEL 1
-    // =====================================================
-
-    const achievementElement =
-        document.getElementById(
-            "salesAchievement"
-        );
-
-    if(achievementElement){
-
-        achievementElement.innerHTML =
-            achievement.toFixed(2) + "%";
-
-    }
 
 }
 
@@ -4014,8 +4102,9 @@ function filterSalesTable(){
     // =============================================
 
     tampilkanSalesSummary(
-        filtered
-    );
+    filtered,
+    window.salesPreviousYear
+);
 
     // =============================================
     // UPDATE TABLE
