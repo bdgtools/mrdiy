@@ -3704,19 +3704,27 @@ function formatNumber(value){
 // SUMMARY
 // =====================================================
 
-function tampilkanSalesSummary(data){ 
+function tampilkanSalesSummary(data){
 
-    let totalSales = 0; 
-    let totalTransaction = 0; 
+    let totalSales = 0;
+    let totalTransaction = 0;
     let totalQtySold = 0;
+    let totalTarget = 0;
 
 
-    data.forEach(row => { 
+    // =====================================================
+    // HITUNG TOTAL
+    // =====================================================
 
-        totalSales += 
-            Number(row.sales) || 0; 
+    data.forEach(row => {
 
-        totalTransaction += 
+        totalSales +=
+            Number(row.sales) || 0;
+
+        totalTarget +=
+            Number(row.target) || 0;
+
+        totalTransaction +=
             Number(row.transaction) || 0;
 
         totalQtySold +=
@@ -3748,7 +3756,18 @@ function tampilkanSalesSummary(data){
 
 
     // =====================================================
-    // DISPLAY
+    // ACHIEVEMENT LEVEL 1
+    // SALES / TARGET
+    // =====================================================
+
+    const achievement =
+        totalTarget > 0
+        ? (totalSales / totalTarget) * 100
+        : 0;
+
+
+    // =====================================================
+    // SALES MTD
     // =====================================================
 
     document
@@ -3757,11 +3776,19 @@ function tampilkanSalesSummary(data){
         formatRupiah(totalSales);
 
 
+    // =====================================================
+    // TRANSACTION
+    // =====================================================
+
     document
         .getElementById("salesTransaction")
         .innerHTML =
         formatNumber(totalTransaction);
 
+
+    // =====================================================
+    // UPT
+    // =====================================================
 
     document
         .getElementById("salesUPT")
@@ -3769,10 +3796,31 @@ function tampilkanSalesSummary(data){
         formatNumber(totalUPT);
 
 
+    // =====================================================
+    // ATV
+    // =====================================================
+
     document
         .getElementById("salesATV")
         .innerHTML =
         formatRupiah(ATV);
+
+
+    // =====================================================
+    // ACHIEVEMENT LEVEL 1
+    // =====================================================
+
+    const achievementElement =
+        document.getElementById(
+            "salesAchievement"
+        );
+
+    if(achievementElement){
+
+        achievementElement.innerHTML =
+            achievement.toFixed(2) + "%";
+
+    }
 
 }
 
