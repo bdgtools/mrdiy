@@ -3704,80 +3704,77 @@ function formatNumber(value){
 // SUMMARY
 // =====================================================
 
-function tampilkanSalesSummary(data){
+function tampilkanSalesSummary(data){ 
 
-    let totalSales = 0;
-    let totalTransaction = 0;
+    let totalSales = 0; 
+    let totalTransaction = 0; 
+    let totalQtySold = 0;
 
-    data.forEach(row=>{
 
-        totalSales +=
-            Number(row.sales) || 0;
+    data.forEach(row => { 
 
-        totalTransaction +=
+        totalSales += 
+            Number(row.sales) || 0; 
+
+        totalTransaction += 
             Number(row.transaction) || 0;
+
+        totalQtySold +=
+            Number(row.qtySold) || 0;
 
     });
 
 
-    /*
-       UPT dan ATV dihitung dari
-       total data periode.
-    */
+    // =====================================================
+    // UPT
+    // TOTAL QTY SOLD / TOTAL TRANSACTION
+    // =====================================================
 
     const totalUPT =
-        data.length
-        ? data.reduce(
-            (sum,row)=>
-                sum +
-                (
-                    Number(row.upt) || 0
-                ),
-            0
-        ) / data.length
+        totalTransaction > 0
+        ? totalQtySold / totalTransaction
         : 0;
 
+
+    // =====================================================
+    // ATV
+    // TOTAL SALES / TOTAL TRANSACTION
+    // =====================================================
 
     const ATV =
         totalTransaction > 0
-        ? totalSales /
-          totalTransaction
+        ? totalSales / totalTransaction
         : 0;
 
+
+    // =====================================================
+    // DISPLAY
+    // =====================================================
 
     document
         .getElementById("salesTotal")
         .innerHTML =
-        formatRupiah(
-            totalSales
-        );
+        formatRupiah(totalSales);
 
 
     document
         .getElementById("salesTransaction")
         .innerHTML =
-        formatNumber(
-            totalTransaction
-        );
+        formatNumber(totalTransaction);
 
 
     document
         .getElementById("salesUPT")
         .innerHTML =
-        formatNumber(
-            totalUPT
-        );
+        formatNumber(totalUPT);
 
 
     document
         .getElementById("salesATV")
         .innerHTML =
-        formatRupiah(
-            ATV
-        );
+        formatRupiah(ATV);
 
 }
-
 
 // =====================================================
 // SALES TABLE
