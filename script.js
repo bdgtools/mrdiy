@@ -266,7 +266,7 @@ function login(){
     // LOADING
     // =============================================
 
-    showLoading("Login...");
+    showLoading("Login, sabar daks");
 
 
     // =============================================
