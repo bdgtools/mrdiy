@@ -348,6 +348,10 @@ function login(){
         data
     );
 
+    // =============================================
+    // SIMPAN SESSION
+    // =============================================
+
     localStorage.setItem(
         "storeCode",
         data.storeCode || storeCode
@@ -368,23 +372,20 @@ function login(){
         Date.now()
     );
 
+
+    // =============================================
+    // UPDATE STORE INFO
+    // =============================================
+
     updateStoreInfo(
         data.storeCode || storeCode,
         data.storeName || ""
     );
 
-    // =====================================
-    // TAMPILKAN POPUP LOGIN BERHASIL
-    // =====================================
 
-    showPopup(
-        "Login berhasil",
-        "✔"
-    );
-
-    // =====================================
+    // =============================================
     // PINDAH KE DASHBOARD
-    // =====================================
+    // =============================================
 
     document
         .getElementById("loginPage")
@@ -394,13 +395,34 @@ function login(){
         .getElementById("dashboardPage")
         .style.display = "block";
 
+
+    // =============================================
+    // RESET SESSION TIMER
+    // =============================================
+
     resetSessionTimer();
 
-    // =====================================
+
+    // =============================================
     // LOAD ITEMIZE
-    // =====================================
+    // =============================================
 
     loadItemize();
+
+
+    // =============================================
+    // POPUP LOGIN BERHASIL
+    // DILAKUKAN TERAKHIR
+    // =============================================
+
+    setTimeout(() => {
+
+        showPopup(
+            "Login berhasil",
+            "✔"
+        );
+
+    }, 100);
 
 }
 
