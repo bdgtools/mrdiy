@@ -241,6 +241,7 @@ function login(){
     const msg =
         document.getElementById("loginMsg");
 
+
     // =============================================
     // VALIDASI
     // =============================================
@@ -258,13 +259,16 @@ function login(){
         return;
     }
 
+
     msg.innerHTML = "";
+
 
     // =============================================
     // LOADING
     // =============================================
 
     showLoading("Login...");
+
 
     // =============================================
     // URL
@@ -279,6 +283,7 @@ function login(){
         encodeURIComponent(password);
 
     console.log("LOGIN URL:", url);
+
 
     // =============================================
     // FETCH
@@ -306,6 +311,7 @@ function login(){
 
     })
 
+
     .then(text => {
 
         console.log(
@@ -313,7 +319,13 @@ function login(){
             text
         );
 
+
         let data;
+
+
+        // =============================================
+        // PARSE JSON
+        // =============================================
 
         try{
 
@@ -335,95 +347,99 @@ function login(){
 
         }
 
+
         hideLoading();
 
-        // =========================================
+
+        // =============================================
         // LOGIN BERHASIL
-        // =========================================
+        // =============================================
 
         if(data.success){
 
-    console.log(
-        "LOGIN BERHASIL:",
-        data
-    );
-
-    // =============================================
-    // SIMPAN SESSION
-    // =============================================
-
-    localStorage.setItem(
-        "storeCode",
-        data.storeCode || storeCode
-    );
-
-    localStorage.setItem(
-        "storeName",
-        data.storeName || ""
-    );
-
-    localStorage.setItem(
-        "loginTime",
-        Date.now()
-    );
-
-    localStorage.setItem(
-        "lastActivity",
-        Date.now()
-    );
+            console.log(
+                "LOGIN BERHASIL:",
+                data
+            );
 
 
-    // =============================================
-    // UPDATE STORE INFO
-    // =============================================
+            // =============================================
+            // SIMPAN SESSION
+            // =============================================
 
-    updateStoreInfo(
-        data.storeCode || storeCode,
-        data.storeName || ""
-    );
+            localStorage.setItem(
+                "storeCode",
+                data.storeCode || storeCode
+            );
 
+            localStorage.setItem(
+                "storeName",
+                data.storeName || ""
+            );
 
-    // =============================================
-    // PINDAH KE DASHBOARD
-    // =============================================
+            localStorage.setItem(
+                "loginTime",
+                Date.now()
+            );
 
-    document
-        .getElementById("loginPage")
-        .style.display = "none";
-
-    document
-        .getElementById("dashboardPage")
-        .style.display = "block";
-
-
-    // =============================================
-// RESET SESSION TIMER
-// =============================================
-
-resetSessionTimer();
+            localStorage.setItem(
+                "lastActivity",
+                Date.now()
+            );
 
 
-// =============================================
-// POPUP LOGIN BERHASIL
-// =============================================
+            // =============================================
+            // UPDATE STORE INFO
+            // =============================================
 
-showPopup(
-    "Login berhasil",
-    "✔"
-);
+            updateStoreInfo(
+                data.storeCode || storeCode,
+                data.storeName || ""
+            );
 
 
-// =============================================
-// LOAD ITEMIZE
-// =============================================
+            // =============================================
+            // PINDAH KE DASHBOARD
+            // =============================================
 
-loadItemize();
+            document
+                .getElementById("loginPage")
+                .style.display = "none";
 
-        // =========================================
-        // LOGIN GAGAL
-        // =========================================
+            document
+                .getElementById("dashboardPage")
+                .style.display = "block";
 
-        else{
+
+            // =============================================
+            // RESET SESSION TIMER
+            // =============================================
+
+            resetSessionTimer();
+
+
+            // =============================================
+            // POPUP LOGIN BERHASIL
+            // =============================================
+
+            showPopup(
+                "Login berhasil",
+                "✔"
+            );
+
+
+            // =============================================
+            // LOAD ITEMIZE
+            // =============================================
+
+            loadItemize();
+
+
+        } else {
+
+            // =========================================
+            // LOGIN GAGAL
+            // =========================================
 
             console.warn(
                 "LOGIN DITOLAK:",
@@ -443,6 +459,7 @@ loadItemize();
         }
 
     })
+
 
     .catch(err => {
 
@@ -465,8 +482,6 @@ loadItemize();
     });
 
 }
-
-
 // =====================================================
 // AUTO LOGIN SAAT PAGE LOAD
 // =====================================================
