@@ -397,34 +397,27 @@ function login(){
 
 
     // =============================================
-    // RESET SESSION TIMER
-    // =============================================
+// RESET SESSION TIMER
+// =============================================
 
-    resetSessionTimer();
-
-
-    // =============================================
-    // LOAD ITEMIZE
-    // =============================================
-
-    loadItemize();
+resetSessionTimer();
 
 
-    // =============================================
-    // POPUP LOGIN BERHASIL
-    // DILAKUKAN TERAKHIR
-    // =============================================
+// =============================================
+// POPUP LOGIN BERHASIL
+// =============================================
 
-    setTimeout(() => {
+showPopup(
+    "Login berhasil",
+    "✔"
+);
 
-        showPopup(
-            "Login berhasil",
-            "✔"
-        );
 
-    }, 100);
+// =============================================
+// LOAD ITEMIZE
+// =============================================
 
-}
+loadItemize();
 
         // =========================================
         // LOGIN GAGAL
@@ -3211,14 +3204,24 @@ function showPopup(text, icon){
     const popupIcon =
         document.getElementById("popupIcon");
 
+    if(!overlay || !popupText || !popupIcon){
+        console.error("Popup element tidak ditemukan");
+        return;
+    }
+
+    clearTimeout(popupTimer);
+
     popupText.innerHTML = text;
     popupIcon.innerHTML = icon;
 
     overlay.classList.add("show");
 
-    setTimeout(() => {
+    popupTimer = setTimeout(() => {
+
         overlay.classList.remove("show");
+
     }, 2000);
+
 }
 function showConfirm(message){
 
