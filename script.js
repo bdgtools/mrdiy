@@ -343,58 +343,66 @@ function login(){
 
         if(data.success){
 
-            console.log(
-                "LOGIN BERHASIL:",
-                data
-            );
+    console.log(
+        "LOGIN BERHASIL:",
+        data
+    );
 
-            localStorage.setItem(
-                "storeCode",
-                data.storeCode || storeCode
-            );
+    localStorage.setItem(
+        "storeCode",
+        data.storeCode || storeCode
+    );
 
-            localStorage.setItem(
-                "storeName",
-                data.storeName || ""
-            );
+    localStorage.setItem(
+        "storeName",
+        data.storeName || ""
+    );
 
-            localStorage.setItem(
-                "loginTime",
-                Date.now()
-            );
+    localStorage.setItem(
+        "loginTime",
+        Date.now()
+    );
 
-            localStorage.setItem(
-                "lastActivity",
-                Date.now()
-            );
+    localStorage.setItem(
+        "lastActivity",
+        Date.now()
+    );
 
-            updateStoreInfo(
-                data.storeCode || storeCode,
-                data.storeName || ""
-            );
+    updateStoreInfo(
+        data.storeCode || storeCode,
+        data.storeName || ""
+    );
 
-            document
-                .getElementById("loginPage")
-                .style.display = "none";
+    // =====================================
+    // TAMPILKAN POPUP LOGIN BERHASIL
+    // =====================================
 
-            document
-                .getElementById("dashboardPage")
-                .style.display = "block";
+    showPopup(
+        "Login berhasil",
+        "✔"
+    );
 
-            resetSessionTimer();
+    // =====================================
+    // PINDAH KE DASHBOARD
+    // =====================================
 
-            showPopup(
-                "Login berhasil",
-                "✔"
-            );
+    document
+        .getElementById("loginPage")
+        .style.display = "none";
 
-            // =====================================
-            // LOAD ITEMIZE
-            // =====================================
+    document
+        .getElementById("dashboardPage")
+        .style.display = "block";
 
-            loadItemize();
+    resetSessionTimer();
 
-        }
+    // =====================================
+    // LOAD ITEMIZE
+    // =====================================
+
+    loadItemize();
+
+}
 
         // =========================================
         // LOGIN GAGAL
