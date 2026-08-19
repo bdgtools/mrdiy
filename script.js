@@ -3178,25 +3178,25 @@ function updateSaveStatus(changed){
 }
 let popupTimer;
 
-function showPopup(message,icon="✔"){
+function showPopup(text, icon){
 
     const overlay =
-    document.getElementById("popupOverlay");
+        document.getElementById("popupOverlay");
 
-    document.getElementById("popupIcon").innerHTML=icon;
+    const popupText =
+        document.getElementById("popupText");
 
-    document.getElementById("popupText").innerHTML=message;
+    const popupIcon =
+        document.getElementById("popupIcon");
+
+    popupText.innerHTML = text;
+    popupIcon.innerHTML = icon;
 
     overlay.classList.add("show");
 
-    clearTimeout(popupTimer);
-
-popupTimer = setTimeout(()=>{
-
-    overlay.classList.remove("show");
-
-},2000);
-
+    setTimeout(() => {
+        overlay.classList.remove("show");
+    }, 2000);
 }
 function showConfirm(message){
 
