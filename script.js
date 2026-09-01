@@ -1092,29 +1092,22 @@ function prosesStock(fisik,sistem){
 
 
 
-            let sel =
-            sys-fis;
+            let sel = 
+    fis - sys;
 
+let status = 
+    "Tally";
 
+if(sel < 0){
 
+    status = "Short";
 
+}
+else if(sel > 0){
 
-            let status =
-            "Tally";
+    status = "Extra";
 
-
-
-            if(sel<0){
-
-                status="Short";
-
-            }
-
-            else if(sel>0){
-
-                status="Extra";
-
-            }
+}
 
 
 
