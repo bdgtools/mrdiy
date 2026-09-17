@@ -1971,96 +1971,46 @@ function loadMasterFile(){
 
 function parseItemizeScan(text){
 
-
-
     let scan={};
 
-
-
     let rows =
-    text.split(/\r?\n/);
-
-
-
-
+        text.split(/\r?\n/);
 
     rows.forEach(row=>{
 
-
-
         let col =
-        row.split(",");
+            row.split(",");
 
-
-
-
-
-        if(
-           col.length>=3 &&
-           col[1].includes("-")
-        ){
-
+        // Pastikan minimal ada rack dan SKU
+        if(col.length >= 3){
 
             let rack =
-            col[1]
-            .trim();
-
-
+                col[1]
+                .trim();
 
             let sku =
-            col[2]
-            .trim();
+                col[2]
+                .trim();
 
-
-
-
-
-            if(!sku)
-            return;
-
-
-
-
+            if(!rack || !sku){
+                return;
+            }
 
             if(!scan[sku]){
-
-
                 scan[sku]=[];
-
-
             }
 
+            if(!scan[sku].includes(rack)){
 
-
-
-            if(
-            !scan[sku]
-            .includes(rack)
-            ){
-
-
-                scan[sku]
-                .push(rack);
-
+                scan[sku].push(rack);
 
             }
-
-
-
 
         }
 
-
-
     });
 
-
-
-
-
     return scan;
-
-
 }
 
 
