@@ -1973,69 +1973,44 @@ function loadMasterFile(){
 
 }
 
-function parseItemizeScan(text){
-
+function parseItemizeScan(txt){
     let scan={};
 
-    let rows =
-        text.split(/\r?\n/);
+    txt.split(/\r?\n/).forEach(line=>{
+        let col=line.split(",");
 
-    rows.forEach(row=>{
+        if(col.length < 3) return;
 
-        let col =
-            row.split(",");
+        let rack = String(col[1] || "").trim();
+        let sku = normalizeSKU(col[2]);
 
-        if(col.length>=3){
+        if(!sku) return;
 
-            let rack =
-                String(col[1] ?? "")
-                .trim()
-                .toUpperCase();
-
-            // NORMALISASI SKU
-            let sku =
-                normalizeSKU(col[2]);
-
-            if(!rack || !sku){
-                return;
-            }
-
-            if(!scan[sku]){
-                scan[sku]=[];
-            }
-
-            // Jangan masukkan rack yang sama berkali-kali
-            if(!scan[sku].includes(rack)){
-
-                scan[sku].push(rack);
-
-            }
-
+        if(!scan[sku]){
+            scan[sku]=[];
         }
 
+        scan[sku].push(rack);
     });
 
     return scan;
-
 }
+function prosesItemize(master, scan){
 
-function prosesItemize(master,scan){
+    let hasil = [];
 
-    let hasil=[];
+    Object.keys(master).forEach(originalSku => {
 
-    Object.keys(master).forEach(originalSku=>{
-
-        let item =
-            master[originalSku];
+        let item = master[originalSku];
 
         let sku =
             normalizeSKU(item.sku);
 
-        let rackArea="-";
-        let display="-";
-        let remark="Unscan";
+        let rackArea = "-";
+        let display = "-";
+        let remark = "Unscan";
 
-        // Cari menggunakan SKU yang sudah dinormalisasi
+        // Cari SKU pada hasil scan
         let scannedRacks =
             scan[sku];
 
@@ -2044,13 +2019,21 @@ function prosesItemize(master,scan){
             scannedRacks.length > 0
         ){
 
-            remark="Scanned";
+            remark = "Scanned";
+
+            // Buang rack kosong
+            scannedRacks =
+                scannedRacks.filter(Boolean);
+
+            // Ambil rack yang unik
+            let uniqueRacks =
+                [...new Set(scannedRacks)];
 
             rackArea =
-                scannedRacks.join(", ");
+                uniqueRacks.join(", ");
 
-            // Lebih dari satu rack
-            if(scannedRacks.length > 1){
+            // Lebih dari satu rack berbeda
+            if(uniqueRacks.length > 1){
 
                 display =
                     "Double Display";
@@ -2058,16 +2041,19 @@ function prosesItemize(master,scan){
             }
 
             // Hanya satu rack
-            else{
+            else if(uniqueRacks.length === 1){
 
                 let scannedRack =
-                    scannedRacks[0];
+                    String(uniqueRacks[0])
+                    .trim()
+                    .toUpperCase();
 
                 let masterRack =
                     String(item.rack ?? "")
                     .trim()
                     .toUpperCase();
 
+                // Rack sama dengan master
                 if(
                     scannedRack === masterRack
                 ){
@@ -2076,10 +2062,12 @@ function prosesItemize(master,scan){
                         "Single Display";
 
                 }
+
+                // Rack berbeda dengan master
                 else{
 
                     display =
-                        "Wrong Area";
+                        "Rack Not Update";
 
                 }
 
@@ -2089,21 +2077,21 @@ function prosesItemize(master,scan){
 
         hasil.push({
 
-            sku:sku,
+    sku: sku,
 
-            rack:item.rack,
+    rack: item.rack,
 
-            desc:item.desc,
+    desc: item.desc,
 
-            system:item.system,
+    system: item.qtySystem,
 
-            rackArea:rackArea,
+    rackArea: rackArea,
 
-            display:display,
+    display: display,
 
-            remark:remark
+    remark: remark
 
-        });
+});
 
     });
 
