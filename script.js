@@ -2878,15 +2878,26 @@ function loadItemize(){
     const storeCode =
         localStorage.getItem("storeCode");
 
-    if(!storeCode) return;
+    if(!storeCode){
+        console.log("STORE CODE TIDAK ADA");
+        return;
+    }
 
-    fetch(
+    const url =
         GAS_URL +
         "?action=loadItemize&storeCode=" +
-        encodeURIComponent(storeCode)
-    )
+        encodeURIComponent(storeCode);
+
+    console.log("LOAD ITEMIZE URL:", url);
+
+    fetch(url)
 
     .then(res => {
+
+        console.log(
+            "LOAD ITEMIZE STATUS:",
+            res.status
+        );
 
         if(!res.ok){
             throw new Error(
@@ -2901,40 +2912,27 @@ function loadItemize(){
     .then(result => {
 
         console.log(
-            "LOAD DARI SHEET",
-            result.data
+            "LOAD DARI SHEET:",
+            result
         );
 
         if(!result.success){
 
             console.log(
+                "LOAD ITEMIZE GAGAL:",
                 result.message
             );
 
             return;
         }
 
-
-        // =============================================
-        // NORMALISASI DATA ITEMIZE
-        // =============================================
-
         itemizeGlobal =
             (result.data || []).map(item => {
-
-                // -----------------------------
-                // SKU
-                // -----------------------------
 
                 const sku =
                     normalizeSKU(
                         item.sku
                     );
-
-
-                // -----------------------------
-                // RACK
-                // -----------------------------
 
                 const rack =
                     String(
@@ -2946,11 +2944,6 @@ function loadItemize(){
                     .trim()
                     .toUpperCase();
 
-
-                // -----------------------------
-                // QTY SYSTEM
-                // -----------------------------
-
                 const system =
                     Number(
                         item.system ??
@@ -2961,11 +2954,6 @@ function loadItemize(){
                         0
                     ) || 0;
 
-
-                // -----------------------------
-                // DESCRIPTION
-                // -----------------------------
-
                 const desc =
                     String(
                         item.desc ??
@@ -2974,35 +2962,14 @@ function loadItemize(){
                     )
                     .trim();
 
-
-                // -----------------------------
-                // RACK AREA
-                // -----------------------------
-
                 const rackArea =
                     item.rackArea &&
                     String(item.rackArea).trim() !== ""
                         ? String(item.rackArea).trim()
                         : "-";
 
-
-                // -----------------------------
-                // DISPLAY
-                // -----------------------------
-
                 let display = "-";
-
-
-                // -----------------------------
-                // REMARK
-                // -----------------------------
-
                 let remark = "Unscan";
-
-
-                // =================================
-                // HITUNG ULANG STATUS
-                // =================================
 
                 if(rackArea !== "-"){
 
@@ -3014,29 +2981,16 @@ function loadItemize(){
                             )
                             .filter(Boolean);
 
-
                     if(rackList.length > 0){
 
                         remark = "Scanned";
-
-
-                        // -------------------------
-                        // DOUBLE DISPLAY
-                        // -------------------------
 
                         if(rackList.length > 1){
 
                             display =
                                 "Double Display";
 
-                        }
-
-
-                        // -------------------------
-                        // SINGLE / NOT UPDATED
-                        // -------------------------
-
-                        else{
+                        }else{
 
                             display =
                                 rackList[0] === rack
@@ -3049,43 +3003,23 @@ function loadItemize(){
 
                 }
 
-
-                // =================================
-                // RETURN DATA
-                // =================================
-
                 return {
-
                     ...item,
-
                     sku: sku,
-
                     rack: rack,
-
                     system: system,
-
                     desc: desc,
-
                     rackArea: rackArea,
-
                     display: display,
-
                     remark: remark
-
                 };
 
             });
-
 
         console.log(
             "ITEMIZE GLOBAL:",
             itemizeGlobal
         );
-
-
-        // =============================================
-        // TAMPILKAN
-        // =============================================
 
         tampilkanItemizeSummary(
             itemizeGlobal
@@ -3095,21 +3029,13 @@ function loadItemize(){
             itemizeGlobal
         );
 
-
-        // =============================================
-        // RESET SAVE STATUS
-        // =============================================
-
         updateSaveStatus(false);
-
 
         const btnSave =
             document.getElementById("btnSave");
 
         if(btnSave){
-
             btnSave.disabled = true;
-
         }
 
     })
