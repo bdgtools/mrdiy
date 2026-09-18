@@ -1863,41 +1863,58 @@ if(btnSave){
 
 }
 
+function normalizeSKU(value){
 
+    return String(value ?? "")
+        // hapus karakter tersembunyi
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+
+        // hapus tanda kutip di awal / akhir
+        .replace(/^["']+|["']+$/g, "")
+
+        // hapus seluruh whitespace
+        .replace(/\s+/g, "")
+
+        // hapus BOM jika ada
+        .replace(/^\uFEFF/, "")
+
+        // samakan huruf
+        .trim()
+        .toUpperCase();
+
+}
 
 function parseItemizeMaster(text){
 
-
     let master={};
 
-
     let rows =
-    text.split(/\r?\n/);
-
-
+        text.split(/\r?\n/);
 
     rows.forEach(row=>{
 
-
         let col =
-        row.split(",");
-
-
+            row.split(",");
 
         if(col.length>=9){
 
-
+            // NORMALISASI SKU
             let sku =
-            col[0].trim();
+                normalizeSKU(col[0]);
 
-
+            let rack =
+                String(col[1] ?? "")
+                .trim()
+                .toUpperCase();
 
             let qtySystem =
-            Number(col[3]) || 0;
+                Number(
+                    String(col[3] ?? "")
+                    .replace(/,/g,"")
+                    .trim()
+                ) || 0;
 
-
-
-            // skip qty system 0
+            // skip SKU kosong / qty system 0
             if(
                 !sku ||
                 qtySystem<=0
@@ -1905,38 +1922,25 @@ function parseItemizeMaster(text){
                 return;
             }
 
-
-
             master[sku]={
-
 
                 sku:sku,
 
+                rack:rack,
 
-                rack:
-                col[1].trim(),
-
-
-                system:
-                qtySystem,
-
+                system:qtySystem,
 
                 desc:
-                col[8].trim()
-
+                    String(col[8] ?? "")
+                    .trim()
 
             };
 
-
         }
-
 
     });
 
-
-
     return master;
-
 
 }
 function loadMasterFile(){
@@ -1981,16 +1985,16 @@ function parseItemizeScan(text){
         let col =
             row.split(",");
 
-        // Pastikan minimal ada rack dan SKU
-        if(col.length >= 3){
+        if(col.length>=3){
 
             let rack =
-                col[1]
-                .trim();
+                String(col[1] ?? "")
+                .trim()
+                .toUpperCase();
 
+            // NORMALISASI SKU
             let sku =
-                col[2]
-                .trim();
+                normalizeSKU(col[2]);
 
             if(!rack || !sku){
                 return;
@@ -2000,6 +2004,7 @@ function parseItemizeScan(text){
                 scan[sku]=[];
             }
 
+            // Jangan masukkan rack yang sama berkali-kali
             if(!scan[sku].includes(rack)){
 
                 scan[sku].push(rack);
@@ -2011,140 +2016,98 @@ function parseItemizeScan(text){
     });
 
     return scan;
-}
 
+}
 
 function prosesItemize(master,scan){
 
-
-
     let hasil=[];
 
-
-
-
-
-
-    Object.keys(master)
-
-    .forEach(sku=>{
-
-
+    Object.keys(master).forEach(originalSku=>{
 
         let item =
-        master[sku];
+            master[originalSku];
 
-
+        let sku =
+            normalizeSKU(item.sku);
 
         let rackArea="-";
-
         let display="-";
-
         let remark="Unscan";
 
+        // Cari menggunakan SKU yang sudah dinormalisasi
+        let scannedRacks =
+            scan[sku];
 
-
-
-
-
-        if(scan[sku]){
-
-
+        if(
+            scannedRacks &&
+            scannedRacks.length > 0
+        ){
 
             remark="Scanned";
 
-
-
             rackArea =
-            scan[sku]
-            .join(", ");
+                scannedRacks.join(", ");
 
-
-
-
-
-
-
-            if(scan[sku].length>1){
-
-
+            // Lebih dari satu rack
+            if(scannedRacks.length > 1){
 
                 display =
-                "Double Display";
-
-
+                    "Double Display";
 
             }
 
+            // Hanya satu rack
             else{
 
+                let scannedRack =
+                    scannedRacks[0];
+
+                let masterRack =
+                    String(item.rack ?? "")
+                    .trim()
+                    .toUpperCase();
 
                 if(
-                scan[sku][0]
-                ===
-                item.rack
+                    scannedRack === masterRack
                 ){
 
-
                     display =
-                    "Single Display";
-
+                        "Single Display";
 
                 }
-
                 else{
 
-
                     display =
-                    "Wrong Area";
-
+                        "Wrong Area";
 
                 }
 
-
             }
-
-
-
-
 
         }
 
-
-
-
-
-
-
         hasil.push({
-           
-           sku: item.sku,
 
-           rack: item.rack,
-   
-           system: item.system,
-   
-           desc: item.desc,
-   
-           rackArea: rackArea,
-   
-           display: display,
-   
-           remark: remark
+            sku:sku,
+
+            rack:item.rack,
+
+            desc:item.desc,
+
+            system:item.system,
+
+            rackArea:rackArea,
+
+            display:display,
+
+            remark:remark
+
         });
-
-
 
     });
 
-
-
-
-
-
     return hasil;
-
-
 
 }
 
