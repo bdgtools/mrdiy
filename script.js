@@ -2079,7 +2079,7 @@ function prosesItemize(master, scan){
            sku: sku,
            rack: item.rack,
            desc: item.desc,
-           system: item.qtySystem,
+           system: item.system,
            rackArea: rackArea,
            display: display,
            remark: remark
@@ -2169,7 +2169,7 @@ function mergeItemize(oldData,newData){
                 database[old.sku].display =
                     area===database[old.sku].rack
                     ? "Single Display"
-                    : "Wrong Area";
+                    : "Rack Not Updated";
             }
 
         }
@@ -2210,7 +2210,7 @@ data.forEach(row=>{
         doubleDisplay++;
 
 
-    if(row.display==="Wrong Area")
+    if(row.display==="Rack Not Updated")
         wrongArea++;
 
 });
@@ -2275,7 +2275,7 @@ let html = `
 
         <h3>${wrongArea}</h3>
 
-        <p>Wrong Area</p>
+        <p>Rack Not Updated</p>
 
     </div>
 
@@ -2383,7 +2383,7 @@ function applyItemizeFilter(){
     if(currentFilter==="wrong"){
 
         data=data.filter(
-        x=>x.display==="Wrong Area"
+        x=>x.display==="Rack Not Updated"
         );
 
     }
@@ -2490,7 +2490,7 @@ data.forEach(row=>{
     }
 
 
-    else if(row.display==="Wrong Area"){
+    else if(row.display==="Rack Not Updated"){
 
 
         cls="wrongArea";
@@ -2914,7 +2914,7 @@ function loadItemize(){
             display =
                 rackList[0] === item.rack
                 ? "Single Display"
-                : "Wrong Area";
+                : "Rack Not Updated";
 
         }
 
