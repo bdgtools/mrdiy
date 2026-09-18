@@ -2076,26 +2076,16 @@ function prosesItemize(master, scan){
         }
 
         hasil.push({
-
-    sku: sku,
-
-    rack: item.rack,
-
-    desc: item.desc,
-
-    system: item.qtySystem,
-
-    rackArea: rackArea,
-
-    display: display,
-
-    remark: remark
-
-});
-
+           sku: sku,
+           rack: item.rack,
+           desc: item.desc,
+           system: item.qtySystem,
+           rackArea: rackArea,
+           display: display,
+           remark: remark
+        });
     });
-
-    return hasil;
+   return hasil;
 
 }
 
