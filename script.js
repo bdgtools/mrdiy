@@ -2869,9 +2869,14 @@ showPopup(
 /* =====================================================
    LOAD ITEMIZE AFTER LOGIN
 ===================================================== */
+/* =====================================================
+   LOAD ITEMIZE AFTER LOGIN
+===================================================== */
+
 function loadItemize(){
 
-    const storeCode = localStorage.getItem("storeCode");
+    const storeCode =
+        localStorage.getItem("storeCode");
 
     if(!storeCode) return;
 
@@ -2880,218 +2885,245 @@ function loadItemize(){
         "?action=loadItemize&storeCode=" +
         encodeURIComponent(storeCode)
     )
-    .then(res=>res.json())
-    .then(result=>{
 
-        console.log("LOAD DARI SHEET", result.data);
+    .then(res => {
 
-        if(result.success){
-           
-           itemizeGlobal = (result.data || []).map(item => {
+        if(!res.ok){
+            throw new Error(
+                "Server error: " + res.status
+            );
+        }
 
-    // =============================================
-    // NORMALISASI QTY SYSTEM
-    // =============================================
+        return res.json();
 
-    const system =
-        Number(
-            item.system ??
-            item.qtySystem ??
-            item.qty_system ??
-            item.systemQty ??
-            item.qty ??
-            0
-        ) || 0;
+    })
 
+    .then(result => {
 
-    // =============================================
-    // NORMALISASI RACK AREA
-    // =============================================
+        console.log(
+            "LOAD DARI SHEET",
+            result.data
+        );
 
-    const rackArea =
-        item.rackArea &&
-        String(item.rackArea).trim() !== ""
-            ? String(item.rackArea).trim()
-            : "-";
+        if(!result.success){
+
+            console.log(
+                result.message
+            );
+
+            return;
+        }
 
 
-    // =============================================
-    // NORMALISASI RACK
-    // =============================================
+        // =============================================
+        // NORMALISASI DATA ITEMIZE
+        // =============================================
 
-    const rack =
-        String(
-            item.rack ??
-            item.rackNumber ??
-            item.rack_number ??
-            ""
-        )
-        .trim()
-        .toUpperCase();
+        itemizeGlobal =
+            (result.data || []).map(item => {
+
+                // -----------------------------
+                // SKU
+                // -----------------------------
+
+                const sku =
+                    normalizeSKU(
+                        item.sku
+                    );
 
 
-    // =============================================
-    // NORMALISASI SKU
-    // =============================================
+                // -----------------------------
+                // RACK
+                // -----------------------------
 
-    const sku =
-        normalizeSKU(
-            item.sku
+                const rack =
+                    String(
+                        item.rack ??
+                        item.rackNumber ??
+                        item.rack_number ??
+                        ""
+                    )
+                    .trim()
+                    .toUpperCase();
+
+
+                // -----------------------------
+                // QTY SYSTEM
+                // -----------------------------
+
+                const system =
+                    Number(
+                        item.system ??
+                        item.qtySystem ??
+                        item.qty_system ??
+                        item.systemQty ??
+                        item.qty_system_qty ??
+                        0
+                    ) || 0;
+
+
+                // -----------------------------
+                // DESCRIPTION
+                // -----------------------------
+
+                const desc =
+                    String(
+                        item.desc ??
+                        item.description ??
+                        ""
+                    )
+                    .trim();
+
+
+                // -----------------------------
+                // RACK AREA
+                // -----------------------------
+
+                const rackArea =
+                    item.rackArea &&
+                    String(item.rackArea).trim() !== ""
+                        ? String(item.rackArea).trim()
+                        : "-";
+
+
+                // -----------------------------
+                // DISPLAY
+                // -----------------------------
+
+                let display = "-";
+
+
+                // -----------------------------
+                // REMARK
+                // -----------------------------
+
+                let remark = "Unscan";
+
+
+                // =================================
+                // HITUNG ULANG STATUS
+                // =================================
+
+                if(rackArea !== "-"){
+
+                    const rackList =
+                        rackArea
+                            .split(",")
+                            .map(r =>
+                                r.trim().toUpperCase()
+                            )
+                            .filter(Boolean);
+
+
+                    if(rackList.length > 0){
+
+                        remark = "Scanned";
+
+
+                        // -------------------------
+                        // DOUBLE DISPLAY
+                        // -------------------------
+
+                        if(rackList.length > 1){
+
+                            display =
+                                "Double Display";
+
+                        }
+
+
+                        // -------------------------
+                        // SINGLE / NOT UPDATED
+                        // -------------------------
+
+                        else{
+
+                            display =
+                                rackList[0] === rack
+                                    ? "Single Display"
+                                    : "Rack Not Updated";
+
+                        }
+
+                    }
+
+                }
+
+
+                // =================================
+                // RETURN DATA
+                // =================================
+
+                return {
+
+                    ...item,
+
+                    sku: sku,
+
+                    rack: rack,
+
+                    system: system,
+
+                    desc: desc,
+
+                    rackArea: rackArea,
+
+                    display: display,
+
+                    remark: remark
+
+                };
+
+            });
+
+
+        console.log(
+            "ITEMIZE GLOBAL:",
+            itemizeGlobal
         );
 
 
-    // =============================================
-    // NORMALISASI DESCRIPTION
-    // =============================================
+        // =============================================
+        // TAMPILKAN
+        // =============================================
 
-    const desc =
-        String(
-            item.desc ??
-            item.description ??
-            ""
-        ).trim();
+        tampilkanItemizeSummary(
+            itemizeGlobal
+        );
 
-
-    // =============================================
-    // HITUNG ULANG DISPLAY & REMARK
-    // =============================================
-
-    let display = "-";
-    let remark = "Unscan";
+        tampilkanItemizeResult(
+            itemizeGlobal
+        );
 
 
-    if(rackArea === "-"){
+        // =============================================
+        // RESET SAVE STATUS
+        // =============================================
 
-        display = "-";
-        remark = "Unscan";
-
-    }else{
-
-        const rackList =
-            rackArea
-                .split(",")
-                .map(r => r.trim().toUpperCase())
-                .filter(Boolean);
+        updateSaveStatus(false);
 
 
-        remark = "Scanned";
+        const btnSave =
+            document.getElementById("btnSave");
 
+        if(btnSave){
 
-        if(rackList.length > 1){
-
-            display = "Double Display";
-
-        }
-        else if(rackList.length === 1){
-
-            display =
-                rackList[0] === rack
-                    ? "Single Display"
-                    : "Rack Not Updated";
-
-        }
-
-    }
-
-
-    // =============================================
-    // RETURN DATA
-    // =============================================
-
-    return {
-
-        ...item,
-
-        sku: sku,
-
-        rack: rack,
-
-        system: system,
-
-        desc: desc,
-
-        rackArea: rackArea,
-
-        display: display,
-
-        remark: remark
-
-    };
-
-});
-    let display = item.display || "-";
-    let remark = item.remark || "Unscan";
-
-    // Hitung ulang supaya selalu konsisten
-    if(rackArea === "-"){
-
-        display = "-";
-        remark = "Unscan";
-
-    }else{
-
-        const rackList = rackArea
-            .split(",")
-            .map(r=>r.trim())
-            .filter(r=>r);
-
-        remark = "Scanned";
-
-        if(rackList.length > 1){
-
-            display = "Double Display";
-
-        }else{
-
-            display =
-                rackList[0] === item.rack
-                ? "Single Display"
-                : "Rack Not Updated";
-
-        }
-
-    }
-
-    return{
-
-        ...item,
-
-        rackArea,
-
-        display,
-
-        remark
-
-    };
-
-});
-
-tampilkanItemizeSummary(itemizeGlobal);
-tampilkanItemizeResult(itemizeGlobal);
-           
-           updateSaveStatus(false);
-           
-           const btnSave =
-document.getElementById("btnSave");
-
-if(btnSave){
-    btnSave.disabled=true;
-}
-        }else{
-
-            console.log(result.message);
+            btnSave.disabled = true;
 
         }
 
     })
-    .catch(err=>{
 
-        console.error(err);
+    .catch(err => {
+
+        console.error(
+            "LOAD ITEMIZE ERROR:",
+            err
+        );
 
     });
 
 }
-
 
 /* =====================================================
    DELETE ITEMIZE DATABASE
