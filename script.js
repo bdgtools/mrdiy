@@ -2002,9 +2002,16 @@ function prosesItemize(master, scan){
     Object.keys(master).forEach(originalSku => {
 
         let item = master[originalSku];
-
-        let sku =
-            normalizeSKU(item.sku);
+       
+       let sku =
+          normalizeSKU(item.sku);
+       
+       let system =
+          Number(
+        item.system ??
+        item.qtySystem ??
+        item.qty_system ??
+        0) || 0;
 
         let rackArea = "-";
         let display = "-";
@@ -2067,7 +2074,7 @@ function prosesItemize(master, scan){
                 else{
 
                     display =
-                        "Rack Not Update";
+                        "Rack Not Updated";
 
                 }
 
@@ -2075,11 +2082,11 @@ function prosesItemize(master, scan){
 
         }
 
-        hasil.push({
+        hasil.push({ 
            sku: sku,
            rack: item.rack,
            desc: item.desc,
-           system: item.system,
+           system: system,
            rackArea: rackArea,
            display: display,
            remark: remark
@@ -2880,13 +2887,138 @@ function loadItemize(){
 
         if(result.success){
            
-           itemizeGlobal = (result.data || []).map(item=>{
+           itemizeGlobal = (result.data || []).map(item => {
+
+    // =============================================
+    // NORMALISASI QTY SYSTEM
+    // =============================================
+
+    const system =
+        Number(
+            item.system ??
+            item.qtySystem ??
+            item.qty_system ??
+            item.systemQty ??
+            item.qty ??
+            0
+        ) || 0;
+
+
+    // =============================================
+    // NORMALISASI RACK AREA
+    // =============================================
 
     const rackArea =
         item.rackArea &&
         String(item.rackArea).trim() !== ""
-            ? String(item.rackArea)
+            ? String(item.rackArea).trim()
             : "-";
+
+
+    // =============================================
+    // NORMALISASI RACK
+    // =============================================
+
+    const rack =
+        String(
+            item.rack ??
+            item.rackNumber ??
+            item.rack_number ??
+            ""
+        )
+        .trim()
+        .toUpperCase();
+
+
+    // =============================================
+    // NORMALISASI SKU
+    // =============================================
+
+    const sku =
+        normalizeSKU(
+            item.sku
+        );
+
+
+    // =============================================
+    // NORMALISASI DESCRIPTION
+    // =============================================
+
+    const desc =
+        String(
+            item.desc ??
+            item.description ??
+            ""
+        ).trim();
+
+
+    // =============================================
+    // HITUNG ULANG DISPLAY & REMARK
+    // =============================================
+
+    let display = "-";
+    let remark = "Unscan";
+
+
+    if(rackArea === "-"){
+
+        display = "-";
+        remark = "Unscan";
+
+    }else{
+
+        const rackList =
+            rackArea
+                .split(",")
+                .map(r => r.trim().toUpperCase())
+                .filter(Boolean);
+
+
+        remark = "Scanned";
+
+
+        if(rackList.length > 1){
+
+            display = "Double Display";
+
+        }
+        else if(rackList.length === 1){
+
+            display =
+                rackList[0] === rack
+                    ? "Single Display"
+                    : "Rack Not Updated";
+
+        }
+
+    }
+
+
+    // =============================================
+    // RETURN DATA
+    // =============================================
+
+    return {
+
+        ...item,
+
+        sku: sku,
+
+        rack: rack,
+
+        system: system,
+
+        desc: desc,
+
+        rackArea: rackArea,
+
+        display: display,
+
+        remark: remark
+
+    };
+
+});
     let display = item.display || "-";
     let remark = item.remark || "Unscan";
 
